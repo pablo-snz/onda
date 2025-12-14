@@ -46,7 +46,7 @@ jobs:
       # 3. Testing
       # Runs all unit and integration tests
       - name: Run Tests
-        run: cargo test --verbose
+        run: cargo test --workspace --verbose
 
       # 4. Security Audit
       # Checks for known vulnerabilities in dependencies

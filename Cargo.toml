@@ -3,10 +3,13 @@ name = "onda"
 version = "0.1.0"
 edition = "2024"
 
+[workspace]
+members = ["onda_control", "onda_dsp", "onda_ui", "onda_midi", "shared"]
+
 [dependencies]
 onda_control = { path = "onda_control" }
 onda_dsp = { path = "onda_dsp" }
 onda_ui = { path = "onda_ui" }
 onda_midi = { path = "onda_midi" }
 shared = { path = "shared" }
-thingbuf = {version = "0.1.6", features = ["static"]}
+thingbuf = { version = "0.1.6", features = ["static"] }

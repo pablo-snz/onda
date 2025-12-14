@@ -26,7 +26,7 @@ clippy:
 
 # Run unit tests
 test:
-	cargo test
+	cargo test --workspace
 
 # Build release version
 build:
