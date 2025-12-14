@@ -13,7 +13,7 @@ pub struct Voice {
 
 impl Voice {
     pub fn new(sample_rate: f64) -> Self {
-        let pitch = shared(440.0);
+        let pitch = shared(0.0);
         let gate = shared(0.0);
 
         // GRAFO DSP
