@@ -1,0 +1,81 @@
+use crate::domain::{producer::Producer, voice_allocator::VoiceAllocator};
+use shared::{
+    constants::voices::MAX_VOICES,
+    types::{control::MidiEvent, dsp::AudioCommand},
+};
+
+fn midi_to_hz(note: u8) -> f32 {
+    440.0 * 2.0_f32.powf((note as f32 - 69.0) / 12.0)
+}
+
+fn velocity_to_gain(velocity: u8) -> f32 {
+    velocity as f32 / 127.0
+}
+
+// fn normalize_pitch_bend(lsb: u8, msb: u8) -> f32 {
+//     let value = ((msb as u16) << 7) | lsb as u16;
+//     (value as f32 / 8192.0) - 1.0
+// }
+
+pub struct ControlEngine<TX: Producer> {
+    state: VoiceAllocator<MAX_VOICES>,
+    dsp_tx: TX,
+}
+
+impl<TX: Producer> ControlEngine<TX> {
+    pub fn new(dsp_tx: TX) -> Self {
+        ControlEngine {
+            state: VoiceAllocator::new(),
+            dsp_tx,
+        }
+    }
+
+    pub fn handle_midi_event(&mut self, event: MidiEvent) {
+        match event {
+            MidiEvent::NoteOn {
+                channel,
+                note,
+                velocity,
+            } => {
+                if velocity == 0 {
+                    if let Some(voice_id) = self.state.note_off(channel, note) {
+                        self.dsp_tx
+                            .block_send(AudioCommand::NoteOff {
+                                voice_index: voice_id,
+                            })
+                            .unwrap();
+                    }
+                    return;
+                }
+
+                let alloc = self.state.note_on(channel, note, velocity);
+
+                if let Some(st) = alloc.stolen {
+                    println!("♻️ Stealing voice {}", st.voice_id);
+                }
+
+                self.dsp_tx
+                    .block_send(AudioCommand::NoteOn {
+                        voice_index: alloc.voice_id,
+                        frequency: midi_to_hz(note),
+                        gain: velocity_to_gain(velocity),
+                    })
+                    .unwrap();
+            }
+
+            MidiEvent::NoteOff {
+                channel,
+                note,
+                velocity: _release_vel,
+            } => {
+                if let Some(voice_id) = self.state.note_off(channel, note) {
+                    self.dsp_tx
+                        .block_send(AudioCommand::NoteOff {
+                            voice_index: voice_id,
+                        })
+                        .unwrap();
+                }
+            }
+        }
+    }
+}

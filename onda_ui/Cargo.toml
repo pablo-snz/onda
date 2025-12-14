@@ -1,0 +1,9 @@
+[package]
+name = "onda_ui"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+shared = { path = "../shared" }
+device_query = "4.0.1"
+thingbuf = {version = "0.1.6", features = ["static"]}

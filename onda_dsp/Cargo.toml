@@ -1,0 +1,12 @@
+[package]
+name = "onda_dsp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cpal = "0.16"
+fundsp = "0.20"                                         # Librería de DSP funcional muy potente
+anyhow = "1.0"                                          # Para manejo de errores fácil en el setup de audio
+log = "0.4"
+thingbuf = { version = "0.1.6", features = ["static"] }
+shared = { path = "../shared" }
