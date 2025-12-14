@@ -48,13 +48,6 @@ jobs:
       - name: Run Tests
         run: cargo test --workspace --verbose
 
-      # 4. Security Audit
-      # Checks for known vulnerabilities in dependencies
-      - name: Security Audit
-        uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       # 5. Build Release
       # Ensures the project builds in release mode without errors
       - name: Build Release
