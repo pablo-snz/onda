@@ -21,7 +21,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2-dev libudev-dev pkg-config
+          sudo apt-get install -y libasound2-dev libudev-dev pkg-config libx11-dev libxrandr-dev libxi-dev
 
       # Cache Cargo registry and build artifacts to speed up CI
       - name: Cache Cargo
