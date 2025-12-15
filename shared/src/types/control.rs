@@ -1,6 +1,7 @@
 pub type Channel = u8; // 0..15
 pub type Note = u8; // 0..127
 pub type Velocity = u8; // 0..127
+pub type Page = u8; // 0..15
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy, Default)]
 pub enum ControlEvent {
@@ -26,5 +27,10 @@ pub enum MidiEvent {
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum UiEvent {
-    // Placeholder for UI events
+    Knob {
+        page: Page,
+        knob: u8,
+        value: u16, // 0..65535
+    },
+    Engine,
 }
