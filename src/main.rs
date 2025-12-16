@@ -20,6 +20,14 @@ fn main() {
     // Cola Control (MPSC - Static)
     let (tx_control, rx_control) = CONTROL_CHANNEL.split();
 
+    // TODO: Añadir una cola de CONTROL -> UI para actualizaciones de estado
+    // En esta cola Control enviará un snapshot del track actual a la UI cada vez que
+    // haya un cambio relevante (nota on/off, cambio de parámetro, etc)
+    // La UI hará cosas como "pintar" el estado de los LFOs, Envolventes, etc.
+    // No hay una realidad entre el estado de LFO al parametro X pero podemos pintar una
+    // animación aproximada en la UI. Simplificamos mucho el proceso y evitamos una cola desde
+    // DSP a UI.
+
     // 2. LANZAMIENTO DE HILOS
     // -----------------------
 
