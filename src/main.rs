@@ -30,7 +30,7 @@ fn main() {
     // DSP a UI.
 
     // Cola UI (SPSC)
-    let (_tx_ui, _rx_ui) = UI_CHANNEL.split();
+    let (tx_ui, _rx_ui) = UI_CHANNEL.split();
 
     // 2. LANZAMIENTO DE HILOS
     // -----------------------
@@ -43,7 +43,7 @@ fn main() {
 
     // B. Hilo CONTROL (Lógica de Negocio)
     let control_thread = thread::spawn(move || {
-        let mut control = ControlEntrypoint::new(tx_dsp, rx_control);
+        let mut control = ControlEntrypoint::new(tx_dsp, rx_control, tx_ui);
         control.start();
     });
     // C. Hilo MIDI (Hardware)

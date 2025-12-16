@@ -1,6 +1,7 @@
 use crate::domain::{producer::Producer, voice_allocator::VoiceAllocator};
 use shared::{
     constants::voices::MAX_VOICES,
+    pages::track::Track,
     types::{control::MidiEvent, dsp::AudioCommand},
 };
 
@@ -12,21 +13,23 @@ fn velocity_to_gain(velocity: u8) -> f32 {
     velocity as f32 / 127.0
 }
 
-// fn normalize_pitch_bend(lsb: u8, msb: u8) -> f32 {
-//     let value = ((msb as u16) << 7) | lsb as u16;
-//     (value as f32 / 8192.0) - 1.0
-// }
-
-pub struct ControlEngine<TX: Producer> {
+pub struct ControlEngine<D, U> {
     state: VoiceAllocator<MAX_VOICES>,
-    dsp_tx: TX,
+    dsp_tx: D,
+    #[allow(dead_code)] // TODO: Remove when UI messages are implemented
+    ui_tx: U,
 }
 
-impl<TX: Producer> ControlEngine<TX> {
-    pub fn new(dsp_tx: TX) -> Self {
+impl<D, U> ControlEngine<D, U>
+where
+    D: Producer<AudioCommand>,
+    U: Producer<Track>,
+{
+    pub fn new(dsp_tx: D, ui_tx: U) -> Self {
         ControlEngine {
             state: VoiceAllocator::new(),
             dsp_tx,
+            ui_tx,
         }
     }
 
@@ -63,11 +66,7 @@ impl<TX: Producer> ControlEngine<TX> {
                     .unwrap();
             }
 
-            MidiEvent::NoteOff {
-                channel,
-                note,
-                velocity: _release_vel,
-            } => {
+            MidiEvent::NoteOff { channel, note, .. } => {
                 if let Some(voice_id) = self.state.note_off(channel, note) {
                     self.dsp_tx
                         .block_send(AudioCommand::NoteOff {

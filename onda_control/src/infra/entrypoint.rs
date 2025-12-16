@@ -1,22 +1,30 @@
 use crate::application::ControlEngine;
-use crate::domain::producer::Producer as DomainProducer;
+use crate::domain::producer::Producer;
 use crate::infra::static_producer::StaticProducer;
-use shared::types::{control::ControlEvent, dsp::AudioCommand};
-
+use shared::{
+    pages::track::Track,
+    types::{control::ControlEvent, dsp::AudioCommand},
+};
 use thingbuf::mpsc::{StaticReceiver, StaticSender};
 
-pub struct ControlEntrypoint<T: DomainProducer> {
-    engine: ControlEngine<T>,
+pub struct ControlEntrypoint<D, U>
+where
+    D: Producer<AudioCommand>,
+    U: Producer<Track>,
+{
+    engine: ControlEngine<D, U>,
     rx_control: StaticReceiver<ControlEvent>,
 }
 
-impl ControlEntrypoint<StaticProducer> {
+impl ControlEntrypoint<StaticProducer<AudioCommand>, StaticProducer<Track>> {
     pub fn new(
         tx_dsp: StaticSender<AudioCommand>,
         rx_control: StaticReceiver<ControlEvent>,
+        tx_ui: StaticSender<Track>,
     ) -> Self {
         let domain_producer = StaticProducer::new(tx_dsp);
-        let engine = ControlEngine::new(domain_producer);
+        let ui_producer = StaticProducer::new(tx_ui);
+        let engine = ControlEngine::new(domain_producer, ui_producer);
 
         ControlEntrypoint { engine, rx_control }
     }
