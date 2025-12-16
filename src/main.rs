@@ -7,6 +7,7 @@ use onda_ui::infra::keyboard_entrypoint::KeyboardEntrypoint;
 
 use shared::queues::control::CONTROL_CHANNEL;
 use shared::queues::dsp::DSP_CHANNEL;
+use shared::queues::ui::UI_CHANNEL;
 
 fn main() {
     println!("=== SINTETIZADOR RUST ===");
@@ -27,6 +28,9 @@ fn main() {
     // No hay una realidad entre el estado de LFO al parametro X pero podemos pintar una
     // animación aproximada en la UI. Simplificamos mucho el proceso y evitamos una cola desde
     // DSP a UI.
+
+    // Cola UI (SPSC)
+    let (_tx_ui, _rx_ui) = UI_CHANNEL.split();
 
     // 2. LANZAMIENTO DE HILOS
     // -----------------------
